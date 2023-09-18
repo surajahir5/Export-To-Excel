@@ -1,0 +1,74 @@
+  // Export To Excel JS Part File   MVC
+
+function OnExportClick() {
+        debugger
+
+        try {
+
+            if (typeof (_DocObj.$scope.DataGrid.GridViewData.length) == "undefined" || _DocObj.$scope.DataGrid.GridViewData.length == 0) {
+                bootbox.alert("No record to export !!!")
+                return false;
+            }
+            var mSortKey = _DocObj.$scope.DataGrid.SortKey;
+            var mSortOrder = _DocObj.$scope.DataGrid.Reverse;
+            var mEndRecord = _DocObj.$scope.DataGrid.GridViewDataSumm.TotalRecord;
+            var mRecordPerPage = _DocObj.$scope.DataGrid.GridViewDataSumm.TotalRecord;
+
+            //mSortKey = "A.Comp_Id";
+
+            if (mSortOrder == true) {
+                mSortOrder = "asc";
+            }
+            else {
+                mSortOrder = "desc";
+            }
+            mSearchParamList = [];
+
+            //   GetSearchParamList();
+            debugger
+            mSearchParamList = JSON.stringify(mSearchParamList);
+
+            window.location.href = _RootUrl + "Masters/Redemption/ExportToExcel/?vSearchJson=" + mSearchParamList + "&SortCol=" + mSortKey + "&SortOrder=" + mSortOrder + "&EndRecord=" + mEndRecord + "&RecordPerPage=" + mRecordPerPage;
+            // window.location.href = _RootUrl + "Masters/Redemption/ExportToExcel/?SortCol=" + mSortKey + "&SortOrder=" + mSortOrder + "&EndRecord=" + mEndRecord + "&RecordPerPage=" + mRecordPerPage + "&SelectedCols=" + "&vPageType=" + vPageType;
+            return false;
+
+        } catch (ex) {
+            throw (ex.message);
+        }
+
+   
+// Controller Part Export To Excel
+
+ public void ExportToExcel(String vSearchJson, String SortCol, String SortOrder, Int32 EndRecord, Int32 RecordPerPage, String SelectedCols, string vPageType)
+        {
+            try
+            {
+                DataSet DsetObj = new DataSet();
+                GridViewProps GridViewPropsObj = new GridViewProps();
+                IList<GridSearchParam> GridSearchParamLstObj = new List<GridSearchParam>();
+                if (vSearchJson != null && vSearchJson != "")
+                {
+                    GridSearchParamLstObj = JsonConvert.DeserializeObject<List<GridSearchParam>>(vSearchJson);
+                }
+                GridViewPropsObj.SortCol = SortCol;
+                GridViewPropsObj.SortOrder = SortOrder;
+                GridViewPropsObj.EndRecord = EndRecord;
+                GridViewPropsObj.PageNumber = 1;
+                GridViewPropsObj.RequireRowCount = "Y";
+                GridViewPropsObj.RecordPerPage = RecordPerPage;
+                GridViewPropsObj.StartRecord = 1;
+                GridViewPropsObj.SearchParamList = new List<GridSearchParam>();
+                GridViewPropsObj.SearchParamList = GridSearchParamLstObj.ToList();
+                DsetObj = (new GridView.Controllers.GridViewController()).GetRecordsPageType(GridViewPropsObj, "SPR_REDEMPTION_GETLIST", _UserObj.Properties.EmpCode, vPageType);
+                String mFileName = String.Empty;
+                mFileName = "ExportData.xlsx";
+
+                ExcelHelper mExcelHelper = new ExcelHelper();
+                //CHANGES BY ANUJ
+                mExcelHelper.ExporttoExcel(DsetObj.Tables[0], mFileName, mFileName);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger.LogError(ex, ModelState, _UserObj, this.ControllerContext);
+            }
+        }
