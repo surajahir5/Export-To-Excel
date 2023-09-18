@@ -64,8 +64,9 @@ function OnExportClick() {
                 mFileName = "ExportData.xlsx";
 
                 ExcelHelper mExcelHelper = new ExcelHelper();
-                //CHANGES BY ANUJ
-                mExcelHelper.ExporttoExcel(DsetObj.Tables[0], mFileName, mFileName);
+             	DataView view = new DataView(DsetObj.Tables[0]);
+                DataTable NewDataTable = view.ToTable(false, "COLUMN_NAME1", "COLUMN_NAME2", "COLUMN_NAME3");       
+                mExcelHelper.ExporttoExcel(NewDataTable , mFileName, mFileName);
             }
             catch (Exception ex)
             {
